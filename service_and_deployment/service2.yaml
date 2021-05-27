@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service2-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service2
+  template:
+    metadata:
+      labels:
+        app: service2
+    spec:
+      containers:
+        - image: service2:latest
+          imagePullPolicy: Never
+          name: service2
+          ports:
+            - containerPort: 80
+          env:
+            - name: VAULT_ADDR
+              value: "http://vault:8200"
+            - name: JWT_PATH
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            - name: SERVICE_PORT
+              value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service2-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: service2
